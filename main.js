@@ -53,17 +53,49 @@ function f(bits, key) {
     return permute(s0 + s1, P4);
 }
 
+
 // Binary-to-Text and Text-to-Binary Conversion
 function textToBinary(text) {
     return [...text].map((char) =>
         char.charCodeAt(0).toString(2).padStart(8, '0')
     ).join(' ');
 }
+function sanitizeBinary(binary) {
+    return binary
+        .replace(/[^01]/g, '') // Remove non-binary characters
+        .match(/.{1,8}/g) || []; // Split into valid 8-bit chunks
+}
 
 function binaryToText(binary) {
-    return binary.split(' ').map((byte) =>
-        String.fromCharCode(parseInt(byte, 2))
-    ).join('');
+    const sanitizedChunks = sanitizeBinary(binary);
+    return sanitizedChunks
+        .map((byte) => {
+            const charCode = parseInt(byte, 2);
+            // Only allow printable ASCII characters
+            if (charCode >= 32 && charCode <= 126) {
+                return String.fromCharCode(charCode);
+            } else {
+                console.warn(`Invalid character for binary chunk: ${byte}`);
+                return ''; // Ignore invalid characters
+            }
+        })
+        .join('');
+}
+
+
+
+
+// Validation function
+function validateInputs(input, key) {
+    if (!key || key.length !== 10 || !/^[01]+$/.test(key)) {
+        alert('Key must be a 10-bit binary number.');
+        return false;
+    }
+    if (!input) {
+        alert('Input cannot be empty.');
+        return false;
+    }
+    return true;
 }
 
 // Encryption
@@ -96,54 +128,70 @@ function decrypt(input, key) {
 
 // Encrypt Text
 function encryptText() {
-    const input = document.getElementById('inputText').value;
-    const key = document.getElementById('keyInput').value;
-    if (!key || key.length !== 10 || !/^[01]+$/.test(key)) {
-        alert('Key must be a 10-bit binary number.');
-        return;
-    }
+    const input = document.getElementById('inputText').value.trim();
+    const key = document.getElementById('keyInput').value.trim();
+    if (!validateInputs(input, key)) return;
 
     const binaryInput = /^[01\s]+$/.test(input) ? input : textToBinary(input);
+    console.log('Binary Input:', binaryInput);
+
     const encrypted = binaryInput.split(' ').map((binary) =>
         encrypt(binary, key)
     ).join(' ');
+    console.log('Encrypted Output:', encrypted);
+
     document.getElementById('outputText').innerText = `Encrypted: ${encrypted}`;
 }
 
+
+
 // Decrypt Text
 function decryptText() {
-    const input = document.getElementById('inputText').value;
-    const key = document.getElementById('keyInput').value;
-    if (!key || key.length !== 10 || !/^[01]+$/.test(key)) {
-        alert('Key must be a 10-bit binary number.');
-        return;
-    }
+    const input = document.getElementById('inputText').value.trim();
+    const key = document.getElementById('keyInput').value.trim();
+    if (!validateInputs(input, key)) return;
 
-    const decryptedBinary = input.split(' ').map((binary) =>
-        decrypt(binary, key)
-    ).join(' ');
+    console.log('Decrypting Input:', input);
+
+    const decryptedBinary = input.split(' ').map((binary) => {
+        console.log('Decrypting Binary:', binary);
+        return decrypt(binary, key);
+    }).join(' ');
+
+    console.log('Decrypted Binary:', decryptedBinary);
+
+    // Convert sanitized binary to text
     const output = binaryToText(decryptedBinary);
+    console.log('Decrypted Output:', output);
+
     document.getElementById('outputText').innerText = `Decrypted: ${output}`;
 }
+
+
+
 
 // Process File
 function processFile(mode) {
     const fileInput = document.getElementById('fileInput');
-    const key = document.getElementById('keyInput').value;
-    if (!fileInput.files.length || !key || key.length !== 10 || !/^[01]+$/.test(key)) {
+    const key = document.getElementById('keyInput').value.trim();
+    if (!fileInput.files.length || !validateInputs('', key)) {
         alert('Please upload a file and provide a valid 10-bit binary key.');
         return;
     }
 
     const reader = new FileReader();
     reader.onload = function (e) {
-        const content = e.target.result;
+        const content = e.target.result.trim();
         const binaryInput = /^[01\s]+$/.test(content) ? content : textToBinary(content);
+        console.log('File Binary Input:', binaryInput);
+
         const processed = binaryInput.split(' ').map((binary) =>
             mode === 'encrypt' ? encrypt(binary, key) : decrypt(binary, key)
         ).join(' ');
 
         const output = mode === 'decrypt' ? binaryToText(processed) : processed;
+        console.log(`${mode === 'encrypt' ? 'Encrypted' : 'Decrypted'} Output:`, output);
+
         downloadFile(`processed_${mode}.txt`, output);
     };
     reader.readAsText(fileInput.files[0]);
