@@ -1,4 +1,4 @@
-// Permutation matrices
+// Permutation 
 const P10 = [3, 5, 2, 7, 4, 10, 1, 9, 8, 6];
 const P8 = [6, 3, 7, 4, 8, 5, 10, 9];
 const IP = [2, 6, 3, 1, 4, 8, 5, 7];
@@ -98,7 +98,6 @@ function validateInputs(input, key) {
     return true;
 }
 
-// Encryption
 function encrypt(input, key) {
     const keys = generateKeys(key);
     let bits = permute(input, IP);
@@ -112,7 +111,7 @@ function encrypt(input, key) {
     return permute(bits, IPI);
 }
 
-// Decryption
+
 function decrypt(input, key) {
     const keys = generateKeys(key).reverse();
     let bits = permute(input, IP);
@@ -126,7 +125,6 @@ function decrypt(input, key) {
     return permute(bits, IPI);
 }
 
-// Encrypt Text
 function encryptText() {
     const input = document.getElementById('inputText').value.trim();
     const key = document.getElementById('keyInput').value.trim();
@@ -145,7 +143,6 @@ function encryptText() {
 
 
 
-// Decrypt Text
 function decryptText() {
     const input = document.getElementById('inputText').value.trim();
     const key = document.getElementById('keyInput').value.trim();
@@ -170,7 +167,6 @@ function decryptText() {
 
 
 
-// Process File
 function processFile(mode) {
     const fileInput = document.getElementById('fileInput');
     const key = document.getElementById('keyInput').value.trim();
