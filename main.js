@@ -8,7 +8,7 @@ const EP = [4, 1, 2, 3, 2, 3, 4, 1];
 const S0 = [[1, 0, 3, 2], [3, 2, 1, 0], [0, 2, 1, 3], [3, 1, 3, 2]];
 const S1 = [[0, 1, 2, 3], [2, 0, 1, 3], [3, 0, 1, 2], [2, 1, 0, 3]];
 
-// Helper functions
+// Helper functions(The S-DES Algo)
 function permute(bits, matrix) {
     return matrix.map((pos) => bits[pos - 1]).join('');
 }
@@ -97,7 +97,7 @@ function validateInputs(input, key) {
     }
     return true;
 }
-
+// 4 rounds instead of 2
 function encrypt(input, key) {
     const keys = generateKeys(key);
     let bits = permute(input, IP);
